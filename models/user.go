@@ -33,3 +33,7 @@ type UserProfileResponse struct {
 type UserForgotPasswordRequest struct {
 	Email string `json:"email" binding:"required,email_validation"`
 }
+
+type UserResetPasswowrdRequest struct {
+	Password string `json:"password" binding:"required,min=8"`
+}
