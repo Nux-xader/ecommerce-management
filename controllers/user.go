@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/Nux-xader/ecommerce-management/config"
 	"github.com/Nux-xader/ecommerce-management/models"
 	"github.com/Nux-xader/ecommerce-management/repositories"
 	"github.com/Nux-xader/ecommerce-management/utils"
@@ -96,4 +98,70 @@ func Profile(c *gin.Context) {
 		Username: profile.Username,
 		Email:    profile.Email,
 	}))
+}
+
+func ForgotPassword(c *gin.Context) {
+	var req models.UserForgotPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorResp(err.Error()))
+		return
+	}
+
+	user, err := repositories.GetUserByEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, utils.ErrorResp("User not found"))
+		return
+	}
+
+	user.ResetPasswordToken = primitive.NewObjectID().Hex()
+	user.ResetPasswordExpires = time.Now().Add(1 * time.Hour)
+
+	if err := repositories.UpdateUser(user); err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp("Failed to update user with reset token"))
+		return
+	}
+
+	resetLink := config.FRONTEND_RESET_PASSWORD_ROUTE + user.ResetPasswordToken
+	htmlContent := "Dear " + user.Username + "<br><br>To reset your password, please click the following link: <a href='" + resetLink + "'>" + resetLink + "</a>"
+	go utils.SendEmail(user.Email, "RESET PASSWORD", htmlContent)
+
+	c.JSON(http.StatusOK, utils.SuccessResp())
+}
+
+func ResetPassword(c *gin.Context) {
+	token := c.Param("token")
+	var request models.UserResetPasswowrdRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorResp(err.Error()))
+		return
+	}
+
+	user, err := repositories.GetUserByResetToken(token)
+	if err != nil {
+		c.JSON(http.StatusNotFound, utils.ErrorResp("Invalid or expired token"))
+		return
+	}
+
+	if user.ResetPasswordExpires.Before(time.Now()) {
+		c.JSON(http.StatusUnauthorized, utils.ErrorResp("Token expired"))
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp("Failed to hash password"))
+		return
+	}
+
+	// change token to expired
+	user.ResetPasswordExpires = time.Now().Add(-1 * time.Hour)
+	// set new password
+	user.Password = string(hashedPassword)
+
+	if err := repositories.UpdateUser(user); err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp("Failed to update password"))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.SuccessResp())
 }
