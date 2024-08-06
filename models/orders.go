@@ -14,3 +14,11 @@ type Order struct {
 	Products []Product          `json:"products" bson:"products"`
 	Status   string             `json:"status" bson:"status,omitempty" binding:"required,order_status"`
 }
+
+type AddOrderRequest struct {
+	ProductIDs []primitive.ObjectID `json:"product_ids" binding:"required"`
+}
+
+type SetOrderStatusRequest struct {
+	Status string `json:"status" bson:"status,omitempty" binding:"required,order_status"`
+}
