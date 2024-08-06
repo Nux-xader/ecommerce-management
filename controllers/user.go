@@ -82,3 +82,18 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.SuccessResp(models.UserTokenResponse{Token: token}))
 }
+
+func Profile(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	profile, err := repositories.GetUserByID(userID.(primitive.ObjectID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.SuccessResp(models.UserProfileResponse{
+		ID:       profile.ID.String(),
+		Username: profile.Username,
+		Email:    profile.Email,
+	}))
+}
