@@ -12,8 +12,7 @@ func SetupRoutes(router *gin.Engine) {
 
 	auth := api.Group("/auth")
 
-	profile := api.Group("/profile")
-	profile.Use(middleware.JWTMiddleware())
+	user := api.Group("/user")
 
 	products := api.Group("/products")
 	products.Use(middleware.JWTMiddleware())
@@ -23,10 +22,10 @@ func SetupRoutes(router *gin.Engine) {
 	{
 		auth.POST("/register", controllers.Register)
 		auth.POST("/login", controllers.Login)
-		auth.POST("/forgot_password", controllers.ForgotPassword)
-		auth.POST("/reset_password/:token", controllers.ResetPassword)
 
-		profile.GET("", controllers.Profile)
+		user.GET("/profile", middleware.JWTMiddleware(), controllers.Profile)
+		user.POST("/forgot-password", controllers.ForgotPassword)
+		user.PUT("/reset-password/:token", controllers.ResetPassword)
 
 		products.GET("", controllers.GetProducts)
 		products.POST("", controllers.CreateProduct)
