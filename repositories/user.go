@@ -4,7 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/Nux-xader/ecommerce-management/models"
+
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -36,4 +39,21 @@ func IsEmailTaken(email string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func CreateUser(user *models.User) error {
+	_, err := userCollection.InsertOne(context.Background(), user)
+	return err
+}
+
+func GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+	err := userCollection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
+	return &user, err
+}
+
+func UserProfile(id primitive.ObjectID) (*models.User, error) {
+	var user models.User
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&user)
+	return &user, err
 }
