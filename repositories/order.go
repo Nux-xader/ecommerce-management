@@ -16,10 +16,12 @@ func InitOrderRepository(db *mongo.Database) {
 	orderCollection = db.Collection("orders")
 }
 
-func GetAllOrders(userID primitive.ObjectID) ([]models.Order, error) {
-	var orders []models.Order
+func GetAllOrders(userID primitive.ObjectID) (orders []models.Order, err error) {
 
-	cursor, err := orderCollection.Find(context.Background(), bson.M{"user_id": userID})
+	cursor, err := orderCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +38,10 @@ func AddOrder(order models.Order) error {
 	return err
 }
 
-func SetOrderStatus(id, userID primitive.ObjectID, status string) (isSuccess bool, err error) {
+func SetOrderStatus(
+	id, userID primitive.ObjectID,
+	status string,
+) (isSuccess bool, err error) {
 	result, err := orderCollection.UpdateOne(
 		context.Background(),
 		bson.M{"_id": id, "user_id": userID},
