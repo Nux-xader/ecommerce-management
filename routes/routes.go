@@ -35,5 +35,6 @@ func SetupRoutes(router *gin.Engine) {
 
 		orders.GET("", controllers.GetOrders)
 		orders.POST("", controllers.AddOrder)
+		orders.PUT("/:id", middleware.SlugObjectID("id"), controllers.SetOrderStatus)
 	}
 }
