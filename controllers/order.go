@@ -58,3 +58,36 @@ func AddOrder(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.SuccessResp())
 }
+
+func SetOrderStatus(c *gin.Context) {
+	var req models.SetOrderStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorResp(err.Error()))
+		return
+	}
+
+	orderID, _ := c.Get("id")
+	userID, _ := c.Get("userID")
+
+	// If the order status has been completed, it cannot be changed.
+	IsCompletedOrder, err := repositories.IsCompletedOrder(orderID.(primitive.ObjectID), userID.(primitive.ObjectID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp(err.Error()))
+		return
+	}
+	if IsCompletedOrder {
+		c.JSON(http.StatusUnprocessableEntity, utils.ErrorResp("Completed orders cannot be changed"))
+		return
+	}
+
+	isSuccess, err := repositories.SetOrderStatus(orderID.(primitive.ObjectID), userID.(primitive.ObjectID), req.Status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResp(err.Error()))
+		return
+	}
+	if !isSuccess {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResp())
+}
