@@ -92,7 +92,7 @@ func Profile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, utils.SuccessResp(models.UserProfileResponse{
-		ID:       profile.ID.String(),
+		ID:       profile.ID.Hex(),
 		Username: profile.Username,
 		Email:    profile.Email,
 	}))
