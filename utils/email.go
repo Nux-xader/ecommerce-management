@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"regexp"
 
 	"github.com/Nux-xader/ecommerce-management/config"
@@ -30,5 +31,8 @@ func SendEmail(to, subject, htmlContent string) {
 		config.SMTP_PASSWORD,
 	)
 
-	d.DialAndSend(m)
+	err := d.DialAndSend(m)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
