@@ -16,7 +16,10 @@ func InitProductRepository(db *mongo.Database) {
 	productCollection = db.Collection("products")
 }
 
-func GetAllProducts(userID primitive.ObjectID, IDs ...primitive.ObjectID) ([]models.Product, error) {
+func GetAllProducts(
+	userID primitive.ObjectID,
+	IDs ...primitive.ObjectID,
+) ([]models.Product, error) {
 	var products []models.Product
 	filter := bson.M{"user_id": userID}
 
@@ -42,8 +45,15 @@ func CreateProduct(product *models.Product) error {
 	return err
 }
 
-func UpdateProduct(id, userID primitive.ObjectID, product *models.Product) (isSuccess bool, err error) {
-	result, err := productCollection.UpdateOne(context.Background(), bson.M{"_id": id, "user_id": userID}, bson.M{"$set": product})
+func UpdateProduct(
+	id, userID primitive.ObjectID,
+	product *models.Product,
+) (isSuccess bool, err error) {
+	result, err := productCollection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": id, "user_id": userID},
+		bson.M{"$set": product},
+	)
 	if result.MatchedCount == 1 {
 		isSuccess = true
 	}
@@ -51,7 +61,10 @@ func UpdateProduct(id, userID primitive.ObjectID, product *models.Product) (isSu
 }
 
 func DeleteProduct(id, userID primitive.ObjectID) (isSuccess bool, err error) {
-	result, err := productCollection.DeleteOne(context.Background(), bson.M{"_id": id, "user_id": userID})
+	result, err := productCollection.DeleteOne(
+		context.Background(),
+		bson.M{"_id": id, "user_id": userID},
+	)
 	if result.DeletedCount == 1 {
 		isSuccess = true
 	}
