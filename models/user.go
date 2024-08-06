@@ -29,3 +29,7 @@ type UserProfileResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
+
+type UserForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email_validation"`
+}
