@@ -16,7 +16,7 @@ func EmailValidation(fl validator.FieldLevel) bool {
 	return re.MatchString(email)
 }
 
-func SendEmail(to, resetLink, subject, htmlContent string) {
+func SendEmail(to, subject, htmlContent string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", config.EMAIL_FROM)
 	m.SetHeader("To", to)
