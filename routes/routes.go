@@ -17,6 +17,9 @@ func SetupRoutes(router *gin.Engine) {
 
 	products := api.Group("/products")
 	products.Use(middleware.JWTMiddleware())
+
+	orders := api.Group("/orders")
+	orders.Use(middleware.JWTMiddleware())
 	{
 		auth.POST("/register", controllers.Register)
 		auth.POST("/login", controllers.Login)
@@ -29,5 +32,8 @@ func SetupRoutes(router *gin.Engine) {
 		products.POST("", controllers.CreateProduct)
 		products.PUT("/:id", middleware.SlugObjectID("id"), controllers.UpdateProduct)
 		products.DELETE("/:id", middleware.SlugObjectID("id"), controllers.DeleteProduct)
+
+		orders.GET("", controllers.GetOrders)
+		orders.POST("", controllers.AddOrder)
 	}
 }
