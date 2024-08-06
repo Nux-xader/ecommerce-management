@@ -46,14 +46,36 @@ func CreateUser(user *models.User) error {
 	return err
 }
 
-func GetUserByUsername(username string) (*models.User, error) {
-	var user models.User
-	err := userCollection.FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
-	return &user, err
+func GetUserByUsername(username string) (user *models.User, err error) {
+	err = userCollection.FindOne(
+		context.Background(),
+		bson.M{"username": username},
+	).Decode(&user)
+	return
 }
 
-func UserProfile(id primitive.ObjectID) (*models.User, error) {
-	var user models.User
-	err := userCollection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&user)
-	return &user, err
+func GetUserByEmail(email string) (user *models.User, err error) {
+	err = userCollection.FindOne(
+		context.Background(),
+		bson.M{"email": email},
+	).Decode(&user)
+	return
+}
+
+func GetUserByResetToken(token string) (user *models.User, err error) {
+	err = userCollection.FindOne(
+		context.Background(),
+		bson.M{"reset_password_token": token},
+	).Decode(&user)
+	return
+}
+
+func UpdateUser(user *models.User) (err error) {
+	_, err = userCollection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{"$set": user})
+	return
+}
+
+func GetUserByID(id primitive.ObjectID) (user *models.User, err error) {
+	err = userCollection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&user)
+	return
 }
