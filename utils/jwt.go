@@ -3,14 +3,14 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
+	"github.com/Nux-xader/ecommerce-management/config"
 	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var jwtSecret = []byte(os.Getenv("SECRET_KEY"))
+var jwtSecret = []byte(config.SECRET_KEY)
 
 type Claims struct {
 	UserID primitive.ObjectID `json:"user_id" bson:"user_id,omitempty"`
